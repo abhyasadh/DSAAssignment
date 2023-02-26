@@ -9,86 +9,108 @@
 // international network.
 
 //Solution:
-//we can use a depth-first search (DFS) algorithm to traverse the network devices and identify the
-//impacted devices. We can start the DFS from node 0 (the gateway), and mark all the visited nodes.
-//When we reach the target device, we can remove it from the graph and continue the DFS. The nodes
-//that are not visited after the DFS will be the impacted devices.
+//We can find the impacted devices by first removing its connected edges. Then we can conduct depth-first-
+//search to find of the source (0) is reachable from each nodes. If it is not reachable, it is flagged as
+//impacted and printed to the console.
 
 
 import java.util.*;
 
 public class OneB {
 
-    static void addEdge(ArrayList<ArrayList<Integer>> am, int s, int d) {
-        am.get(s).add(d);
-        am.get(d).add(s);
+    //This function takes as input an adjacency list, represented by an ArrayList of ArrayLists, and two
+    //integers s and d representing the source and destination nodes. It adds an edge between the two
+    //nodes by appending d to the list at index s, and appending s to the list at index d.
+    static void addEdge(ArrayList<ArrayList<Integer>> adjacencyMatrix, int s, int d) {
+        adjacencyMatrix.get(s).add(d);
+        adjacencyMatrix.get(d).add(s);
     }
 
-
-    static void removeEdge(ArrayList<ArrayList<Integer>> am, int s, int d) {
-        if (am.get(s).contains(d)) {
-            am.get(s).remove(Integer.valueOf(d));
+    //This function takes as input an adjacency list, represented by an ArrayList of ArrayLists, and
+    //two integers s and d representing the source and destination nodes. It removes the edge between
+    //the two nodes by removing d from the list at index s, and removing s from the list at index d.
+    static void removeEdge(ArrayList<ArrayList<Integer>> adjacencyMatrix, int s, int d) {
+        if (adjacencyMatrix.get(s).contains(d)) {
+            adjacencyMatrix.get(s).remove(Integer.valueOf(d));
             System.out.println("removed node " + s);
         }
-        if (am.get(d).contains(s)) {
-            am.get(d).remove(Integer.valueOf(s));
+        if (adjacencyMatrix.get(d).contains(s)) {
+            adjacencyMatrix.get(d).remove(Integer.valueOf(s));
             System.out.println("removed node " + d);
         }
     }
 
-
-
-    private static void printDisconnectedNodes(ArrayList<ArrayList<Integer>> am, int disconnectedNode) {
-        for (int i = am.get(disconnectedNode).size() - 1; i >= 0; i--) {
-            int neighbor = am.get(disconnectedNode).get(i);
+    //This function takes as input an adjacency list and an integer representing the disconnected node.
+    //It iterates through the list of neighbors of the disconnected node, removes each edge between the
+    //disconnected node and its neighbors using the removeEdge function, and prints a message to the
+    //console for each edge that is removed.
+    private static void printDisconnectedNodes(ArrayList<ArrayList<Integer>> adjacencyMatrix, int disconnectedNode) {
+        for (int i = adjacencyMatrix.get(disconnectedNode).size() - 1; i >= 0; i--) {
+            int neighbor = adjacencyMatrix.get(disconnectedNode).get(i);
             System.out.println("Removing edge between " + disconnectedNode + " and " + neighbor);
-            removeEdge(am, disconnectedNode, neighbor);
+            removeEdge(adjacencyMatrix, disconnectedNode, neighbor);
         }
     }
-    static boolean isReachable(ArrayList<ArrayList<Integer>> am, int s, int d) {
-        boolean[] visited = new boolean[am.size()];
-        return dfs(am, visited, s, d);
+
+    //This function takes as input an adjacency list, represented by an ArrayList of ArrayLists, and
+    //two integers s and d representing the source and destination nodes. It uses depth-first search (DFS)
+    //to determine whether there is a path between s and d in the graph. It initializes a boolean array
+    //visited to track which nodes have been visited. It sets the value at index s to true to mark it as
+    //visited. It checks if s is equal to d, and if so, returns true. Otherwise, it iterates through the
+    //list of neighbors of s and recursively calls the DFS function on each unvisited neighbor. If any
+    //neighbor leads to a path to d, the function returns true. Otherwise, it returns false.
+    static boolean isReachable(ArrayList<ArrayList<Integer>> adjacencyMatrix, int s, int d) {
+        boolean[] visited = new boolean[adjacencyMatrix.size()];
+        return dfs(adjacencyMatrix, visited, s, d);
     }
 
-    static boolean dfs(ArrayList<ArrayList<Integer>> am, boolean[] visited, int s, int d) {
+    static boolean dfs(ArrayList<ArrayList<Integer>> adjacencyMatrix, boolean[] visited, int s, int d) {
         visited[s] = true;
         if (s == d) {
             return true;
         }
-        for (int i = 0; i < am.get(s).size(); i++) {
-            int v = am.get(s).get(i);
-            if (!visited[v] && dfs(am, visited, v, d)) {
+        for (int i = 0; i < adjacencyMatrix.get(s).size(); i++) {
+            int v = adjacencyMatrix.get(s).get(i);
+            if (!visited[v] && dfs(adjacencyMatrix, visited, v, d)) {
                 return true;
             }
         }
         return false;
     }
 
-
-
     public static void main(String[] args) {
 
-        int V = 8;
-        ArrayList<ArrayList<Integer>> am = new ArrayList<ArrayList<Integer>>(V);
+        int vertices = 8;
 
-        for (int i = 0; i < V; i++)
-            am.add(new ArrayList<Integer>());
-        addEdge(am, 0, 1);
-        addEdge(am, 0, 2);
-        addEdge(am, 1, 3);
-        addEdge(am, 2, 4);
-        addEdge(am, 1, 6);
-        addEdge(am, 4, 6);
-        addEdge(am, 4, 5);
-        addEdge(am, 5, 7);
+        //initialize an empty adjacency matrix
+        ArrayList<ArrayList<Integer>> adjacencyMatrix = new ArrayList<>(vertices);
+
+        //add new arraylist that will represent the edges of the graph (time complexity: O(n))
+        for (int i = 0; i < vertices; i++) adjacencyMatrix.add(new ArrayList<>());
+
+        //add edges
+        addEdge(adjacencyMatrix, 0, 1);
+        addEdge(adjacencyMatrix, 0, 2);
+        addEdge(adjacencyMatrix, 1, 3);
+        addEdge(adjacencyMatrix, 2, 4);
+        addEdge(adjacencyMatrix, 1, 6);
+        addEdge(adjacencyMatrix, 4, 6);
+        addEdge(adjacencyMatrix, 4, 5);
+        addEdge(adjacencyMatrix, 5, 7);
+
+        //provide the disconnected node
         int disconnectedNode=4;
-        printDisconnectedNodes(am,disconnectedNode);
 
+        //use printDisconnectedNodes function to remove all edges that connect to this node
+        printDisconnectedNodes(adjacencyMatrix,disconnectedNode);
+
+        //use isReachable function to determine if each node in the array is reachable from the destination
+        //node. If a node is not reachable, it is printed to the console.
         int[] nodes ={0,1,2,3,4,5,6,7};
         int destination = 0;
         for (int source : nodes) {
-            boolean disconn = isReachable(am, source, destination);
-            if (!disconn) {
+            boolean disconnected = isReachable(adjacencyMatrix, source, destination);
+            if (!disconnected) {
                 System.out.println("disconnected nodes are " + source);
             }
 
