@@ -1,0 +1,10 @@
+1. a) Dijaksta ma weight le multiply garne
+    b) Network split question
+
+2. a) Ancestor check garne, ancestor only if hcf is 1.
+    b) Euta service center le neighbour lai matra herxa, kati ota service centre chainxa?
+
+3. a) Absolute value
+
+5. a) {x, y, height}, eutai height ma duita border hunu vayena
+
